@@ -1,0 +1,44 @@
+package persistentie01;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+import domein01.Speler;
+
+public class SpelerMapper {
+	private static Connection connection;
+	private static final String GET_SPELER = "SELECT * FROM Speler WHERE gebruikersnaam = ? AND geboortejaar = ?";
+	private static final String GET_SPELERS = "SELECT * FROM Speler";
+	
+	static {
+		try {
+			connection = DriverManager.getConnection(Connectie.URL, Connectie.USER, Connectie.PASSWORD);
+		}catch(SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
+
+	public List<Speler> geefSpelers() {
+		List<Speler> Spelers = new ArrayList<>();
+
+		try (PreparedStatement query = connection.prepareStatement(GET_SPELERS);
+				ResultSet resultSet = query.executeQuery()) {
+			while (resultSet.next()) {
+				String gebruikersnaam = resultSet.getString("gebruikersnaam");
+				int geboortejaar = resultSet.getInt("geboortejaar");
+
+				Spelers.add(new Speler(gebruikersnaam, geboortejaar));
+			}
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+		return Spelers;
+	}
+}
